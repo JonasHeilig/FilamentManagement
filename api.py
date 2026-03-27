@@ -34,7 +34,7 @@ def list_spools():
 @bp.route('/spools', methods=['POST'])
 def create_spool():
     data = request.get_json() or {}
-    required = ['name', 'material', 'color', 'total_weight_grams']
+    required = ['name', 'manufacturer', 'material', 'color', 'total_weight_grams']
     for f in required:
         if f not in data:
             return jsonify({"error": f"Missing field: {f}"}), 400
@@ -97,14 +97,6 @@ def consume_spool(spool_id):
     actual = spool.consume(grams)
     db.session.commit()
     return jsonify({"requested": grams, "actual_consumed": actual, "remaining": spool.remaining_weight_grams})
-
-
-@bp.route('/spools/<spool_id>/refill', methods=['POST'])
-def refill_spool(spool_id):
-    # Nach Anforderung: Rollen sind nicht auffüllbar.
-    # Wir behalten die Route sichtbar, geben aber einen klaren Fehler zurück,
-    # damit Clients wissen, dass Nachfüllen nicht unterstützt wird.
-    return jsonify({"error": "Refill not supported: spools are not refillable"}), 405
 
 
 @bp.route('/spools/<spool_id>/archive', methods=['POST'])

@@ -9,6 +9,7 @@ db = SQLAlchemy()
 class Spool(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(120), nullable=False)
+    manufacturer = db.Column(db.String(120), nullable=False)   # <- neu
     material = db.Column(db.String(80), nullable=False)
     color = db.Column(db.String(80), nullable=False)
     total_weight_grams = db.Column(db.Integer, nullable=False)
@@ -18,8 +19,9 @@ class Spool(db.Model):
                            nullable=False)
     archived = db.Column(db.Boolean, default=False, nullable=False)
 
-    def __init__(self, name, material, color, total_weight_grams, remaining_weight_grams=None, **kwargs):
+    def __init__(self, name, manufacturer, material, color, total_weight_grams, remaining_weight_grams=None, **kwargs):
         self.name = name
+        self.manufacturer = manufacturer
         self.material = material
         self.color = color
         self.total_weight_grams = int(total_weight_grams)
@@ -32,6 +34,7 @@ class Spool(db.Model):
         return {
             "id": self.id,
             "name": self.name,
+            "manufacturer": self.manufacturer,   # <- neu
             "material": self.material,
             "color": self.color,
             "total_weight_grams": self.total_weight_grams,

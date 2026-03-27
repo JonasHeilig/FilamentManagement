@@ -78,3 +78,40 @@ def update_spool(spool_id):
     if updated:
         db.session.commit()
     return jsonify(spool.to_dict())
+
+
+@bp.route('/spools/<spool_id>/consume', methods=['POST'])
+def consume_spool(spool_id):
+    spool, err = spool_or_404(spool_id)
+    if err:
+        return err
+    data = request.get_json() or {}
+    if 'grams' not in data:
+        return jsonify({"error": "Missing field: grams"}), 400
+    try:
+        grams = int(data['grams'])
+        if grams <= 0:
+            raise ValueError()
+    except Exception:
+        return jsonify({"error": "grams must be a positive integer"}), 400
+    actual = spool.consume(grams)
+    db.session.commit()
+    return jsonify({"requested": grams, "actual_consumed": actual, "remaining": spool.remaining_weight_grams})
+
+
+@bp.route('/spools/<spool_id>/refill', methods=['POST'])
+def refill_spool(spool_id):
+    # Nach Anforderung: Rollen sind nicht auffüllbar.
+    # Wir behalten die Route sichtbar, geben aber einen klaren Fehler zurück,
+    # damit Clients wissen, dass Nachfüllen nicht unterstützt wird.
+    return jsonify({"error": "Refill not supported: spools are not refillable"}), 405
+
+
+@bp.route('/spools/<spool_id>/archive', methods=['POST'])
+def archive_spool(spool_id):
+    spool, err = spool_or_404(spool_id)
+    if err:
+        return err
+    spool.archived = True
+    db.session.commit()
+    return jsonify(spool.to_dict())

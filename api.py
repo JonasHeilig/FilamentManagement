@@ -46,6 +46,7 @@ def create_spool():
         return jsonify({"error": "total_weight_grams must be a non-negative integer"}), 400
     spool = Spool(
         name=data['name'],
+        manufacturer=data['manufacturer'],
         material=data['material'],
         color=data['color'],
         total_weight_grams=total

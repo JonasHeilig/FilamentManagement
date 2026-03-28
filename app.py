@@ -1,11 +1,13 @@
 from flask import Flask, render_template
 from models import db
 from api import bp as api_bp
+import os
 
 
 def create_app(test_config=None):
     app = Flask(__name__, template_folder='templates')
-    app.config.setdefault('SQLALCHEMY_DATABASE_URI', 'sqlite:///spools.db')
+    db_path = os.path.join('/tmp', 'spools.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
     app.config.setdefault('SQLALCHEMY_TRACK_MODIFICATIONS', False)
 
     if test_config:

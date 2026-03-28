@@ -28,7 +28,7 @@ def test_consume_spool(client):
     # create
     resp = client.post('/api/spools', json={
         'name': 'Consumable',
-        'material': 'PETG',
+        'material': 'PLA',
         'color': 'Blue',
         'total_weight_grams': 300
     })

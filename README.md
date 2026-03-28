@@ -4,7 +4,7 @@ Kleines Flask-Projekt zur Verwaltung von 3D-Filament-Rollen (Spools).
 
 
 Alle API-Routen sind unter folgendem Prefix erreichbar:
-- `http://localhost:5000/api`
+- https://filament-management-icr1.vercel.app/api/
 
 ## Datenmodell:
 

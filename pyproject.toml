@@ -1,7 +1,13 @@
-[tool.poetry]
-name = "filament_management"
+[project]
+name = "FilamentManagement"
 version = "0.1.0"
-description = "A Flask application for managing filament."
+description = "A software based on a Flask api for Filament management"
+requires-python = ">=3.11"
+dependencies = [
+  "Flask",
+  "Flask-SQLAlchemy",
+  "SQLAlchemy"
+]
 
 [tool.poetry.dependencies]
 flask = "^2.0"

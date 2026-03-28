@@ -1,0 +1,10 @@
+[tool.poetry]
+name = "filament_management"
+version = "0.1.0"
+description = "A Flask application for managing filament."
+
+[tool.poetry.dependencies]
+flask = "^2.0"
+
+[tool.poetry.scripts]
+app = "app:create_app"

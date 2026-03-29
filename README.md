@@ -1,33 +1,33 @@
 # Filament Management
 
-Kleines Flask-Projekt zur Verwaltung von 3D-Filament-Rollen (Spools).
+Smale Flask-Project to manage your 3D-Fillament Spools.
 
-Um es über die WebUI zu benutzen, einfach die URL aufrufen:
+Use the WebUI to easily manage your spools:
 - https://filament-management-icr1.vercel.app/
 
 
-Alle API-Routen sind unter folgendem Prefix erreichbar (Per Terminal):
+All API-Routs are available at following URL (Per Terminal) to create your own scripts or clients:
 - https://filament-management-icr1.vercel.app/api/
 
 
-Nach dem Aufsetzen des Programmes bitte erstmal folgende URL aufrufen, um die Datenbank zu initialisieren:
-- https://[Deine-URL]/api/init
+After setting up the project, please call the following URL to initialize the database:
+- https://[your-URL]/api/init
 
-## Datenmodell:
+## Datamodel of the DB:
 
-| Feld                     | Typ       | Beschreibung                   |
-|--------------------------|-----------|--------------------------------|
-| `id`                     | `string`  | Eindeutige ID der Spool        |
-| `name`                   | `string`  | Name der Rolle                 |
-| `manufacturer`           | `string`  | Hersteller                     |
-| `material`               | `string`  | Material, z. B. PLA            |
-| `color`                  | `string`  | Farbe                          |
-| `total_weight_grams`     | `integer` | Gesamtgewicht in Gramm         |
-| `remaining_weight_grams` | `integer` | Verbleibendes Gewicht in Gramm |
-| `created_at`             | `string`  | Erstellungszeitpunkt           |
-| `updated_at`             | `string`  | Letzte Änderung                |
-| `archived`               | `boolean` | Ob die Rolle archiviert ist    |
-### Beispiel
+| Feld                     | Typ       | Descripton             |
+|--------------------------|-----------|------------------------|
+| `id`                     | `string`  | Unice ID               |
+| `name`                   | `string`  | Name of the Spool      |
+| `manufacturer`           | `string`  | Manufacrur             |
+| `material`               | `string`  | e.g. PLA               |
+| `color`                  | `string`  | Color                  |
+| `total_weight_grams`     | `integer` | Weight of full Spool   |
+| `remaining_weight_grams` | `integer` | remain weight of spool |
+| `created_at`             | `string`  | Date of creation       |
+| `updated_at`             | `string`  | Date of Last Update    |
+| `archived`               | `boolean` | Spool archived?        |
+### Èxample
 
 ```json
 {
@@ -44,26 +44,26 @@ Nach dem Aufsetzen des Programmes bitte erstmal folgende URL aufrufen, um die Da
 }
 ```
 
-## API-Endpunkte
+## API-Routes
 
-| Methode | Endpoint                         | Typ      | Beschreibung                    |
-|---------|----------------------------------|----------|---------------------------------|
-| `GET`   | `/api/spools`                    | `array`  | Gibt alle Spools zurück         |
-| `POST`  | `/api/spools`                    | `object` | Erstellt eine neue Spool        |
-| `GET`   | `/api/spools/<spool_id>`         | `object` | Gibt eine einzelne Spool zurück |
-| `PATCH` | `/api/spools/<spool_id>`         | `object` | Ändert eine Spool teilweise     |
-| `POST`  | `/api/spools/<spool_id>/consume` | `object` | Verbraucht Filament             |
-| `POST`  | `/api/spools/<spool_id>/archive` | `object` | Archiviert eine Spool           |
+| Methode | Endpoint                         | Typ      | Beschreibung                                    |
+|---------|----------------------------------|----------|-------------------------------------------------|
+| `GET`   | `/api/spools`                    | `array`  | All Spools                                      |
+| `POST`  | `/api/spools`                    | `object` | Create new Spool                                |
+| `GET`   | `/api/spools/<spool_id>`         | `object` | Only gives Spool with the send ID               |
+| `PATCH` | `/api/spools/<spool_id>`         | `object` | Change Infos of a specific spool                |
+| `POST`  | `/api/spools/<spool_id>/consume` | `object` | Consume a Amount of the spool with the given ID |
+| `POST`  | `/api/spools/<spool_id>/archive` | `object` | Archive a Spool                                 |
 
-## Query-Parameter für `GET /api/spools`
+## Query Parameters for `GET /api/spools`
 
-| Parameter  | Typ       | Beschreibung                    |
-|------------|-----------|---------------------------------|
-| `material` | `string`  | Filter nach Material            |
-| `color`    | `string`  | Filter nach Farbe               |
-| `archived` | `boolean` | Filter nach archiviertem Status |
+| Parameter  | Typ       | Beschreibung              |
+|------------|-----------|---------------------------|
+| `material` | `string`  | filter by material        |
+| `color`    | `string`  | filter by color           |
+| `archived` | `boolean` | filter by archived Status |
 
-## Pflichtfelder für `POST /api/spools`
+## Mandatory fields for `POST /api/spools`
 
 | Feld                 | Typ       |
 |----------------------|-----------|
@@ -73,7 +73,7 @@ Nach dem Aufsetzen des Programmes bitte erstmal folgende URL aufrufen, um die Da
 | `color`              | `string`  |
 | `total_weight_grams` | `integer` |
 
-## Pflichtfelder für `POST /api/spools/<spool_id>/consume`
+## Mandatory fields for `POST /api/spools/<spool_id>/consume`
 
 | Feld    | Typ       |
 |---------|-----------|

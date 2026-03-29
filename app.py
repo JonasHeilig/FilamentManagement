@@ -28,6 +28,12 @@ def create_app(test_config=None):
     def spool_detail(spool_id):
         return render_template('spool_detail.html')
 
+    @app.route('/api/init', methods=['GET', 'POST'])
+    def init_db():
+        with app.app_context():
+            db.create_all()
+        return {'status': 'ok', 'message': 'Database initialized'}
+
     return app
 
 

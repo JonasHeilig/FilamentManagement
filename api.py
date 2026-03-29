@@ -4,7 +4,6 @@ from models import db, Spool
 bp = Blueprint('api', __name__, url_prefix='/api')
 
 
-# Helpers
 def spool_or_404(spool_id):
     spool = Spool.query.get(spool_id)
     if spool is None:

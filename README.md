@@ -9,6 +9,10 @@ Um es über die WebUI zu benutzen, einfach die URL aufrufen:
 Alle API-Routen sind unter folgendem Prefix erreichbar (Per Terminal):
 - https://filament-management-icr1.vercel.app/api/
 
+
+Nach dem Aufsetzen des Programmes bitte erstmal folgende URL aufrufen, um die Datenbank zu initialisieren:
+- https://[Deine-URL]/api/init_db
+
 ## Datenmodell:
 
 | Feld                     | Typ       | Beschreibung                   |

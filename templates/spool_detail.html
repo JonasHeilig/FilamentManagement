@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Spool Details - Filament Management{% endblock %}
+
+{% block content %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const dashboardNav = document.getElementById('dashboardNav');
+    const addSpoolNav = document.getElementById('addSpoolNav');
+    if (dashboardNav) dashboardNav.style.display = 'block';
+    if (addSpoolNav) addSpoolNav.style.display = 'none';
+});
+</script>
+
+<div class="spool-detail">
+    <button onclick="history.back()" class="btn btn-secondary">← Zurück</button>
+
+    <div id="loading" class="loading" style="display:none;">Lädt...</div>
+    <div id="error" class="alert alert-danger" style="display:none;"></div>
+    <div id="success" class="alert alert-success" style="display:none;"></div>
+
+    <div id="spoolContent" style="display:none;">
+        <div class="spool-header">
+            <h2 id="spoolName"></h2>
+            <span id="spoolStatus" class="badge"></span>
+        </div>
+
+        <div class="spool-info">
+            <div class="info-card">
+                <h3>Grundinformation</h3>
+                <p><strong>ID:</strong> <span id="spoolId"></span></p>
+                <p><strong>Hersteller:</strong> <span id="spoolManufacturer"></span></p>
+                <p><strong>Material:</strong> <span id="spoolMaterial"></span></p>
+                <p><strong>Farbe:</strong> <span id="spoolColor"></span></p>
+                <p><strong>Erstellt:</strong> <span id="spoolCreated"></span></p>
+                <p><strong>Aktualisiert:</strong> <span id="spoolUpdated"></span></p>
+            </div>
+
+            <div class="info-card">
+                <h3>Gewicht-Status</h3>
+                <div class="progress-bar large">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <p id="weightStatus" style="text-align: center; margin-top: 10px;"></p>
+
+                <div class="consume-form">
+                    <h4>Material verbrauchen</h4>
+                    <div class="form-group">
+                        <input type="number" id="consumeGrams" min="1" placeholder="Gramm">
+                    </div>
+                    <button onclick="handleConsume()" class="btn btn-primary">Verbrauchen</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="spool-actions">
+            <h3>Aktionen</h3>
+            <button onclick="openEditModal()" class="btn btn-primary">Bearbeiten</button>
+            <button onclick="handleArchive()" id="archiveBtn" class="btn btn-warning">Archivieren</button>
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2>Spool bearbeiten</h2>
+        <form id="editForm" onsubmit="handleEditSpool(event)">
+            <div class="form-group">
+                <label for="editName">Name:</label>
+                <input type="text" id="editName" required>
+            </div>
+            <div class="form-group">
+                <label for="editMaterial">Material:</label>
+                <input type="text" id="editMaterial" required>
+            </div>
+            <div class="form-group">
+                <label for="editColor">Farbe:</label>
+                <input type="text" id="editColor" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Speichern</button>
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Abbrechen</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentSpool = null;
+const spoolId = window.location.pathname.split('/').pop();
+
+document.addEventListener('DOMContentLoaded', loadSpoolDetail);
+
+async function loadSpoolDetail() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('error').style.display = 'none';
+
+    try {
+        currentSpool = await apiGetSpool(spoolId);
+        renderSpoolDetail(currentSpool);
+        document.getElementById('spoolContent').style.display = 'block';
+    } catch (error) {
+        showError(error.message);
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+
+function renderSpoolDetail(spool) {
+    document.getElementById('spoolName').textContent = spool.name;
+    document.getElementById('spoolId').textContent = spool.id;
+    document.getElementById('spoolManufacturer').textContent = spool.manufacturer;
+    document.getElementById('spoolMaterial').textContent = spool.material;
+    document.getElementById('spoolColor').textContent = spool.color;
+    document.getElementById('spoolCreated').textContent = new Date(spool.created_at).toLocaleDateString('de-DE');
+    document.getElementById('spoolUpdated').textContent = new Date(spool.updated_at).toLocaleDateString('de-DE');
+
+    const status = document.getElementById('spoolStatus');
+    if (spool.archived) {
+        status.className = 'badge-archived';
+        status.textContent = 'Archiviert';
+        document.getElementById('archiveBtn').textContent = 'Dearchivieren';
+    } else {
+        status.className = 'badge-active';
+        status.textContent = 'Aktiv';
+    }
+
+    const percentage = Math.round((spool.remaining_weight_grams / spool.total_weight_grams) * 100);
+    document.getElementById('progressFill').style.width = percentage + '%';
+    document.getElementById('weightStatus').textContent =
+        `${spool.remaining_weight_grams}g / ${spool.total_weight_grams}g (${percentage}%)`;
+
+    document.getElementById('editName').value = spool.name;
+    document.getElementById('editMaterial').value = spool.material;
+    document.getElementById('editColor').value = spool.color;
+}
+
+function openEditModal() {
+    document.getElementById('editModal').style.display = 'block';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+async function handleEditSpool(event) {
+    event.preventDefault();
+
+    const data = {
+        name: document.getElementById('editName').value,
+        material: document.getElementById('editMaterial').value,
+        color: document.getElementById('editColor').value
+    };
+
+    try {
+        const updated = await apiUpdateSpool(spoolId, data);
+        currentSpool = updated;
+        renderSpoolDetail(currentSpool);
+        closeEditModal();
+        showSuccess('Spool aktualisiert!');
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
+async function handleConsume() {
+    const grams = parseInt(document.getElementById('consumeGrams').value);
+    if (!grams || grams <= 0) {
+        showError('Bitte geben Sie eine gültige Menge ein');
+        return;
+    }
+    
+    try {
+        const result = await apiConsumeSpool(spoolId, grams);
+        currentSpool.remaining_weight_grams = result.remaining;
+        renderSpoolDetail(currentSpool);
+        document.getElementById('consumeGrams').value = '';
+        showSuccess(`${result.actual_consumed}g verbraucht!`);
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
+async function handleArchive() {
+    if (!confirm(currentSpool.archived ? 'Dearchivieren?' : 'Archivieren?')) return;
+    
+    try {
+        const updated = await apiArchiveSpool(spoolId);
+        currentSpool = updated;
+        renderSpoolDetail(currentSpool);
+        showSuccess('Spool aktualisiert!');
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
+function showError(message) {
+    const div = document.getElementById('error');
+    div.textContent = message;
+    div.style.display = 'block';
+}
+
+function showSuccess(message) {
+    const div = document.getElementById('success');
+    div.textContent = message;
+    div.style.display = 'block';
+    setTimeout(() => {
+        div.style.display = 'none';
+    }, 3000);
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('editModal');
+    if (event.target === modal) {
+        closeEditModal();
+    }
+}
+</script>
+{% endblock %}

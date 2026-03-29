@@ -1,12 +1,198 @@
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Filament Management System</title>
-    </head>
-    <body>
-        <h1>Filament Management</h1>
-        <p>Die API ist unter <a href="/api/spools">/api/spools</a> verfügbar.</p>
-        <p>Benutze curl oder ein API-Client, z.B:</p>
-        <pre>curl -X POST -H "Content-Type: application/json" -d '{"name":"PLA-1","material":"PLA","color":"Red","total_weight_grams":1000}' https://filament-management-icr1.vercel.app/</pre>
-    </body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Filament Management{% endblock %}
+
+{% block content %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const dashboardNav = document.getElementById('dashboardNav');
+    const addSpoolNav = document.getElementById('addSpoolNav');
+    if (dashboardNav) dashboardNav.style.display = 'none';
+    if (addSpoolNav) addSpoolNav.style.display = 'block';
+});
+</script>
+
+<div class="dashboard">
+    <h2>Übersicht</h2>
+
+    <div class="filters">
+        <input type="text" id="materialFilter" placeholder="Nach Material filtern...">
+        <input type="text" id="colorFilter" placeholder="Nach Farbe filtern...">
+        <label>
+            <input type="checkbox" id="showArchived" checked> Archivierte ausblenden
+        </label>
+        <button onclick="loadSpools()">Aktualisieren</button>
+    </div>
+
+    <div id="loading" class="loading" style="display:none;">Lädt...</div>
+    <div id="error" class="alert alert-danger" style="display:none;"></div>
+
+    <table class="spools-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Hersteller</th>
+                <th>Material</th>
+                <th>Farbe</th>
+                <th>Verbleibend / Gesamt</th>
+                <th>Status</th>
+                <th>Aktionen</th>
+            </tr>
+        </thead>
+        <tbody id="spoolsBody">
+        </tbody>
+    </table>
+</div>
+
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeCreateModal()">&times;</span>
+        <h2>Neue Spool erstellen</h2>
+        <form id="createForm" onsubmit="handleCreateSpool(event)">
+            <div class="form-group">
+                <label for="spoolName">Name:</label>
+                <input type="text" id="spoolName" required>
+            </div>
+            <div class="form-group">
+                <label for="manufacturer">Hersteller:</label>
+                <input type="text" id="manufacturer" required>
+            </div>
+            <div class="form-group">
+                <label for="material">Material:</label>
+                <input type="text" id="material" required>
+            </div>
+            <div class="form-group">
+                <label for="color">Farbe:</label>
+                <input type="text" id="color" required>
+            </div>
+            <div class="form-group">
+                <label for="totalWeight">Gesamtgewicht (Gramm):</label>
+                <input type="number" id="totalWeight" min="1" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Erstellen</button>
+                <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Abbrechen</button>
+            </div>
+        </form>
+        <div id="createMessage" class="alert" style="display:none; margin-top:10px;"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', loadSpools);
+
+async function loadSpools() {
+    const material = document.getElementById('materialFilter').value;
+    const color = document.getElementById('colorFilter').value;
+    const hideArchived = document.getElementById('showArchived').checked;
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('error').style.display = 'none';
+
+    try {
+        const spools = await apiGetSpools(material, color, false);
+        const filtered = hideArchived ? spools.filter(s => !s.archived) : spools;
+        renderSpools(filtered);
+    } catch (error) {
+        showError(error.message);
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+
+function renderSpools(spools) {
+    const tbody = document.getElementById('spoolsBody');
+    tbody.innerHTML = '';
+
+    if (spools.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Keine Spulen gefunden</td></tr>';
+        return;
+    }
+
+    spools.forEach(spool => {
+        const percentage = Math.round((spool.remaining_weight_grams / spool.total_weight_grams) * 100);
+        const row = document.createElement('tr');
+        row.className = spool.archived ? 'row-archived' : '';
+        row.innerHTML = `
+            <td>${spool.name}</td>
+            <td>${spool.manufacturer}</td>
+            <td>${spool.material}</td>
+            <td><span class="color-dot" style="background-color: ${spool.color.toLowerCase() === 'schwarz' ? '#000' : spool.color.toLowerCase() === 'weiß' ? '#fff' : spool.color.toLowerCase()}"></span> ${spool.color}</td>
+            <td>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${percentage}%"></div>
+                </div>
+                ${spool.remaining_weight_grams}g / ${spool.total_weight_grams}g (${percentage}%)
+            </td>
+            <td>${spool.archived ? '<span class="badge-archived">Archiviert</span>' : '<span class="badge-active">Aktiv</span>'}</td>
+            <td>
+                <button onclick="viewSpool('${spool.id}')" class="btn btn-small">Details</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function openCreateModal() {
+    document.getElementById('createModal').style.display = 'block';
+    document.getElementById('createForm').reset();
+    document.getElementById('createMessage').style.display = 'none';
+}
+
+function closeCreateModal() {
+    document.getElementById('createModal').style.display = 'none';
+}
+
+async function handleCreateSpool(event) {
+    event.preventDefault();
+
+    const data = {
+        name: document.getElementById('spoolName').value,
+        manufacturer: document.getElementById('manufacturer').value,
+        material: document.getElementById('material').value,
+        color: document.getElementById('color').value,
+        total_weight_grams: parseInt(document.getElementById('totalWeight').value)
+    };
+
+    try {
+        const message = document.getElementById('createMessage');
+        message.className = 'alert alert-success';
+        message.textContent = 'Erstelle Spool...';
+        message.style.display = 'block';
+
+        await apiCreateSpool(data);
+
+        message.textContent = 'Spool erfolgreich erstellt!';
+        setTimeout(() => {
+            closeCreateModal();
+            loadSpools();
+        }, 1000);
+    } catch (error) {
+        const message = document.getElementById('createMessage');
+        message.className = 'alert alert-danger';
+        message.textContent = 'Fehler: ' + error.message;
+        message.style.display = 'block';
+    }
+}
+
+function viewSpool(spoolId) {
+    window.location.href = `/spool/${spoolId}`;
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('createModal');
+    if (event.target === modal) {
+        closeCreateModal();
+    }
+}
+</script>
+{% endblock %}

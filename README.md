@@ -2,8 +2,11 @@
 
 Kleines Flask-Projekt zur Verwaltung von 3D-Filament-Rollen (Spools).
 
+Um es über die WebUI zu benutzen, einfach die URL aufrufen:
+- https://filament-management-icr1.vercel.app/
 
-Alle API-Routen sind unter folgendem Prefix erreichbar:
+
+Alle API-Routen sind unter folgendem Prefix erreichbar (Per Terminal):
 - https://filament-management-icr1.vercel.app/api/
 
 ## Datenmodell:

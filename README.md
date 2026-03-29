@@ -11,7 +11,7 @@ Alle API-Routen sind unter folgendem Prefix erreichbar (Per Terminal):
 
 
 Nach dem Aufsetzen des Programmes bitte erstmal folgende URL aufrufen, um die Datenbank zu initialisieren:
-- https://[Deine-URL]/api/init_db
+- https://[Deine-URL]/api/init
 
 ## Datenmodell:
 

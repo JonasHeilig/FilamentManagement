@@ -83,7 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 document.addEventListener('DOMContentLoaded', loadSpools);
 
-setInterval(() => loadSpools(true), 30000);
+
+// Auto-refresh time in milliseconds (e.g., 5000 for 5 seconds)
+setInterval(() => loadSpools(true), 5000);
 
 async function loadSpools(silent = false) {
     const material = document.getElementById('materialFilter').value;

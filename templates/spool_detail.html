@@ -13,9 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <div class="spool-detail">
-    <button onclick="history.back()" class="btn btn-secondary">← Zurück</button>
+    <button onclick="history.back()" class="btn btn-secondary">← Back</button>
 
-    <div id="loading" class="loading" style="display:none;">Lädt...</div>
+    <div id="loading" class="loading" style="display:none;">Loading...</div>
     <div id="error" class="alert alert-danger" style="display:none;"></div>
     <div id="success" class="alert alert-success" style="display:none;"></div>
 
@@ -27,36 +27,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <div class="spool-info">
             <div class="info-card">
-                <h3>Grundinformation</h3>
+                <h3>Basic Information</h3>
                 <p><strong>ID:</strong> <span id="spoolId"></span></p>
-                <p><strong>Hersteller:</strong> <span id="spoolManufacturer"></span></p>
+                <p><strong>Manufacturer:</strong> <span id="spoolManufacturer"></span></p>
                 <p><strong>Material:</strong> <span id="spoolMaterial"></span></p>
-                <p><strong>Farbe:</strong> <span id="spoolColor"></span></p>
-                <p><strong>Erstellt:</strong> <span id="spoolCreated"></span></p>
-                <p><strong>Aktualisiert:</strong> <span id="spoolUpdated"></span></p>
+                <p><strong>Color:</strong> <span id="spoolColor"></span></p>
+                <p><strong>Created:</strong> <span id="spoolCreated"></span></p>
+                <p><strong>Updated:</strong> <span id="spoolUpdated"></span></p>
             </div>
 
             <div class="info-card">
-                <h3>Gewicht-Status</h3>
+                <h3>Weight Status</h3>
                 <div class="progress-bar large">
                     <div id="progressFill" class="progress-fill"></div>
                 </div>
                 <p id="weightStatus" style="text-align: center; margin-top: 10px;"></p>
 
                 <div class="consume-form">
-                    <h4>Material verbrauchen</h4>
+                    <h4>Consume Material</h4>
                     <div class="form-group">
-                        <input type="number" id="consumeGrams" min="1" placeholder="Gramm">
+                        <input type="number" id="consumeGrams" min="1" placeholder="Grams">
                     </div>
-                    <button onclick="handleConsume()" class="btn btn-primary">Verbrauchen</button>
+                    <button onclick="handleConsume()" class="btn btn-primary">Consume</button>
                 </div>
             </div>
         </div>
 
         <div class="spool-actions">
-            <h3>Aktionen</h3>
-            <button onclick="openEditModal()" class="btn btn-primary">Bearbeiten</button>
-            <button onclick="handleArchive()" id="archiveBtn" class="btn btn-warning">Archivieren</button>
+            <h3>Actions</h3>
+            <button onclick="openEditModal()" class="btn btn-primary">Edit</button>
+            <button onclick="handleArchive()" id="archiveBtn" class="btn btn-warning">Archive</button>
         </div>
     </div>
 </div>
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="editModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeEditModal()">&times;</span>
-        <h2>Spool bearbeiten</h2>
+        <h2>Edit Spool</h2>
         <form id="editForm" onsubmit="handleEditSpool(event)">
             <div class="form-group">
                 <label for="editName">Name:</label>
@@ -75,12 +75,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <input type="text" id="editMaterial" required>
             </div>
             <div class="form-group">
-                <label for="editColor">Farbe:</label>
+                <label for="editColor">Color:</label>
                 <input type="text" id="editColor" required>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Speichern</button>
-                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Abbrechen</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
             </div>
         </form>
     </div>
@@ -94,6 +94,9 @@ let currentSpool = null;
 const spoolId = window.location.pathname.split('/').pop();
 
 document.addEventListener('DOMContentLoaded', loadSpoolDetail);
+
+// Auto-refresh every 30 seconds
+setInterval(loadSpoolDetail, 30000);
 
 async function loadSpoolDetail() {
     document.getElementById('loading').style.display = 'block';
@@ -116,17 +119,17 @@ function renderSpoolDetail(spool) {
     document.getElementById('spoolManufacturer').textContent = spool.manufacturer;
     document.getElementById('spoolMaterial').textContent = spool.material;
     document.getElementById('spoolColor').textContent = spool.color;
-    document.getElementById('spoolCreated').textContent = new Date(spool.created_at).toLocaleDateString('de-DE');
-    document.getElementById('spoolUpdated').textContent = new Date(spool.updated_at).toLocaleDateString('de-DE');
+    document.getElementById('spoolCreated').textContent = new Date(spool.created_at).toLocaleDateString('en-US');
+    document.getElementById('spoolUpdated').textContent = new Date(spool.updated_at).toLocaleDateString('en-US');
 
     const status = document.getElementById('spoolStatus');
     if (spool.archived) {
         status.className = 'badge-archived';
-        status.textContent = 'Archiviert';
-        document.getElementById('archiveBtn').textContent = 'Dearchivieren';
+        status.textContent = 'Archived';
+        document.getElementById('archiveBtn').textContent = 'Unarchive';
     } else {
         status.className = 'badge-active';
-        status.textContent = 'Aktiv';
+        status.textContent = 'Active';
     }
 
     const percentage = Math.round((spool.remaining_weight_grams / spool.total_weight_grams) * 100);
@@ -161,7 +164,7 @@ async function handleEditSpool(event) {
         currentSpool = updated;
         renderSpoolDetail(currentSpool);
         closeEditModal();
-        showSuccess('Spool aktualisiert!');
+        showSuccess('Spool updated!');
     } catch (error) {
         showError(error.message);
     }
@@ -170,29 +173,29 @@ async function handleEditSpool(event) {
 async function handleConsume() {
     const grams = parseInt(document.getElementById('consumeGrams').value);
     if (!grams || grams <= 0) {
-        showError('Bitte geben Sie eine gültige Menge ein');
+        showError('Please enter a valid amount');
         return;
     }
-    
+
     try {
         const result = await apiConsumeSpool(spoolId, grams);
         currentSpool.remaining_weight_grams = result.remaining;
         renderSpoolDetail(currentSpool);
         document.getElementById('consumeGrams').value = '';
-        showSuccess(`${result.actual_consumed}g verbraucht!`);
+        showSuccess(`${result.actual_consumed}g consumed!`);
     } catch (error) {
         showError(error.message);
     }
 }
 
 async function handleArchive() {
-    if (!confirm(currentSpool.archived ? 'Dearchivieren?' : 'Archivieren?')) return;
-    
+    if (!confirm(currentSpool.archived ? 'Unarchive?' : 'Archive?')) return;
+
     try {
         const updated = await apiArchiveSpool(spoolId);
         currentSpool = updated;
         renderSpoolDetail(currentSpool);
-        showSuccess('Spool aktualisiert!');
+        showSuccess('Spool updated!');
     } catch (error) {
         showError(error.message);
     }

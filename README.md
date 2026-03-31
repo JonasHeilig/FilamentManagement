@@ -1,6 +1,11 @@
 # Filament Management
 
-Smale Flask-Project to manage your 3D-Fillament Spools.
+Small Flask-Project to manage your 3D-Fillament Spools. <br>
+Self-Host on in your HomeLab <br>
+1. Clone Repo <br>
+2. Run app.py <br>
+3. Setup => After setting up the project, please call the following URL to initialize the database:
+- https://[your-URL]/api/init
 
 Use the WebUI to easily manage your spools - Web Demo:
 - [http://fil-demo.jonasheilig.de/](http://fil-demo.jonasheilig.de/)
@@ -8,9 +13,6 @@ Use the WebUI to easily manage your spools - Web Demo:
 
 All API-Routs are available at following URL (Per Terminal) to create your own scripts or clients (Not on Demo Server - Please use WebUI for Demo):
 - https://[your-URL]/api/
-
-Setup => After setting up the project, please call the following URL to initialize the database:
-- https://[your-URL]/api/init
 
 ## Datamodel of the DB:
 

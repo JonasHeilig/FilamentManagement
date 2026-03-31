@@ -131,11 +131,11 @@ function renderSpoolDetail(spool) {
     const status = document.getElementById('spoolStatus');
     if (spool.archived) {
         status.className = 'badge-archived';
-        status.textContent = 'Archiviert';
-        document.getElementById('archiveBtn').textContent = 'Dearchivieren';
+        status.textContent = 'Archived';
+        document.getElementById('archiveBtn').textContent = 'rearchived';
     } else {
         status.className = 'badge-active';
-        status.textContent = 'Aktiv';
+        status.textContent = 'Activ';
     }
 
     const percentage = Math.round((spool.remaining_weight_grams / spool.total_weight_grams) * 100);
@@ -170,7 +170,7 @@ async function handleEditSpool(event) {
         currentSpool = updated;
         renderSpoolDetail(currentSpool);
         closeEditModal();
-        showSuccess('Spool aktualisiert!');
+        showSuccess('Spool updated!');
     } catch (error) {
         showError(error.message);
     }
@@ -179,7 +179,7 @@ async function handleEditSpool(event) {
 async function handleConsume() {
     const grams = parseInt(document.getElementById('consumeGrams').value);
     if (!grams || grams <= 0) {
-        showError('Bitte geben Sie eine gültige Menge ein');
+        showError('Please give a valid amount of grams to consume.');
         return;
     }
 
@@ -188,20 +188,20 @@ async function handleConsume() {
         currentSpool.remaining_weight_grams = result.remaining;
         renderSpoolDetail(currentSpool);
         document.getElementById('consumeGrams').value = '';
-        showSuccess(`${result.actual_consumed}g verbraucht!`);
+        showSuccess(`${result.actual_consumed}g consumed!`);
     } catch (error) {
         showError(error.message);
     }
 }
 
 async function handleArchive() {
-    if (!confirm(currentSpool.archived ? 'Dearchivieren?' : 'Archivieren?')) return;
+    if (!confirm(currentSpool.archived ? 'Reachieved?' : 'Archive?')) return;
 
     try {
         const updated = await apiArchiveSpool(spoolId);
         currentSpool = updated;
         renderSpoolDetail(currentSpool);
-        showSuccess('Spool aktualisiert!');
+        showSuccess('Spool updated!');
     } catch (error) {
         showError(error.message);
     }

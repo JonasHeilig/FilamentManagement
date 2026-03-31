@@ -11,7 +11,7 @@ async function apiGetSpools(material = '', color = '', archived = false) {
     if (params.length) url += '?' + params.join('&');
 
     const response = await fetch(url);
-    if (!response.ok) throw new Error('Spulen konnten nicht geladen werden');
+    if (!response.ok) throw new Error('Could not load spools');
     return response.json();
 }
 
@@ -23,14 +23,14 @@ async function apiCreateSpool(data) {
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Spool konnte nicht erstellt werden');
+        throw new Error(error.error || 'Could not create spool');
     }
     return response.json();
 }
 
 async function apiGetSpool(spoolId) {
     const response = await fetch(`${API_BASE}/spools/${spoolId}`);
-    if (!response.ok) throw new Error('Spool nicht gefunden');
+    if (!response.ok) throw new Error('Spool not found');
     return response.json();
 }
 
@@ -40,7 +40,7 @@ async function apiUpdateSpool(spoolId, data) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     });
-    if (!response.ok) throw new Error('Spool konnte nicht aktualisiert werden');
+    if (!response.ok) throw new Error('Could not update spool');
     return response.json();
 }
 
@@ -50,7 +50,7 @@ async function apiConsumeSpool(spoolId, grams) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ grams })
     });
-    if (!response.ok) throw new Error('Material konnte nicht verbraucht werden');
+    if (!response.ok) throw new Error('Could not consume material');
     return response.json();
 }
 
@@ -59,6 +59,6 @@ async function apiArchiveSpool(spoolId) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     });
-    if (!response.ok) throw new Error('Spool konnte nicht archiviert werden');
+    if (!response.ok) throw new Error('Could not archive spool');
     return response.json();
 }

@@ -95,8 +95,14 @@ const spoolId = window.location.pathname.split('/').pop();
 
 document.addEventListener('DOMContentLoaded', loadSpoolDetail);
 
-// Auto-refresh every 30 seconds
-setInterval(loadSpoolDetail, 30000);
+setInterval(async () => {
+    try {
+        currentSpool = await apiGetSpool(spoolId);
+        renderSpoolDetail(currentSpool);
+    } catch (error) {
+        console.error('Auto-refresh failed:', error);
+    }
+}, 30000);
 
 async function loadSpoolDetail() {
     document.getElementById('loading').style.display = 'block';
@@ -119,17 +125,17 @@ function renderSpoolDetail(spool) {
     document.getElementById('spoolManufacturer').textContent = spool.manufacturer;
     document.getElementById('spoolMaterial').textContent = spool.material;
     document.getElementById('spoolColor').textContent = spool.color;
-    document.getElementById('spoolCreated').textContent = new Date(spool.created_at).toLocaleDateString('en-US');
-    document.getElementById('spoolUpdated').textContent = new Date(spool.updated_at).toLocaleDateString('en-US');
+    document.getElementById('spoolCreated').textContent = new Date(spool.created_at).toLocaleDateString('de-DE');
+    document.getElementById('spoolUpdated').textContent = new Date(spool.updated_at).toLocaleDateString('de-DE');
 
     const status = document.getElementById('spoolStatus');
     if (spool.archived) {
         status.className = 'badge-archived';
-        status.textContent = 'Archived';
-        document.getElementById('archiveBtn').textContent = 'Unarchive';
+        status.textContent = 'Archiviert';
+        document.getElementById('archiveBtn').textContent = 'Dearchivieren';
     } else {
         status.className = 'badge-active';
-        status.textContent = 'Active';
+        status.textContent = 'Aktiv';
     }
 
     const percentage = Math.round((spool.remaining_weight_grams / spool.total_weight_grams) * 100);
@@ -164,7 +170,7 @@ async function handleEditSpool(event) {
         currentSpool = updated;
         renderSpoolDetail(currentSpool);
         closeEditModal();
-        showSuccess('Spool updated!');
+        showSuccess('Spool aktualisiert!');
     } catch (error) {
         showError(error.message);
     }
@@ -173,7 +179,7 @@ async function handleEditSpool(event) {
 async function handleConsume() {
     const grams = parseInt(document.getElementById('consumeGrams').value);
     if (!grams || grams <= 0) {
-        showError('Please enter a valid amount');
+        showError('Bitte geben Sie eine gültige Menge ein');
         return;
     }
 
@@ -182,20 +188,20 @@ async function handleConsume() {
         currentSpool.remaining_weight_grams = result.remaining;
         renderSpoolDetail(currentSpool);
         document.getElementById('consumeGrams').value = '';
-        showSuccess(`${result.actual_consumed}g consumed!`);
+        showSuccess(`${result.actual_consumed}g verbraucht!`);
     } catch (error) {
         showError(error.message);
     }
 }
 
 async function handleArchive() {
-    if (!confirm(currentSpool.archived ? 'Unarchive?' : 'Archive?')) return;
+    if (!confirm(currentSpool.archived ? 'Dearchivieren?' : 'Archivieren?')) return;
 
     try {
         const updated = await apiArchiveSpool(spoolId);
         currentSpool = updated;
         renderSpoolDetail(currentSpool);
-        showSuccess('Spool updated!');
+        showSuccess('Spool aktualisiert!');
     } catch (error) {
         showError(error.message);
     }

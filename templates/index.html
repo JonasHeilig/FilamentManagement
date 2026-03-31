@@ -83,15 +83,16 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 document.addEventListener('DOMContentLoaded', loadSpools);
 
-// Auto-refresh every 30 seconds
-setInterval(loadSpools, 30000);
+setInterval(() => loadSpools(true), 30000);
 
-async function loadSpools() {
+async function loadSpools(silent = false) {
     const material = document.getElementById('materialFilter').value;
     const color = document.getElementById('colorFilter').value;
     const hideArchived = document.getElementById('showArchived').checked;
 
-    document.getElementById('loading').style.display = 'block';
+    if (!silent) {
+        document.getElementById('loading').style.display = 'block';
+    }
     document.getElementById('error').style.display = 'none';
 
     try {
@@ -99,9 +100,13 @@ async function loadSpools() {
         const filtered = hideArchived ? spools.filter(s => !s.archived) : spools;
         renderSpools(filtered);
     } catch (error) {
-        showError(error.message);
+        if (!silent) {
+            showError(error.message);
+        }
     } finally {
-        document.getElementById('loading').style.display = 'none';
+        if (!silent) {
+            document.getElementById('loading').style.display = 'none';
+        }
     }
 }
 
